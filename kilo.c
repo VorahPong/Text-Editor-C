@@ -6,17 +6,22 @@
 
 #include <unistd.h>
 #include <termios.h>
+#include <stdlib.h>
 
 struct termios original_termios;    // stored the original setting of terminal
 
 /*
-    enableRawMode() function will turn off echo in terminal 
+    enableRawMode() function will turn off echo in terminal.
+    It also called disableRawMode() when the program exits.
 */
 void enableRawMode() {
-    struct termios raw;
-    tcgetattr(STDIN_FILENO, &raw);
+    tcgetattr(STDIN_FILENO, &original_termios);
+    atexit(disableRawMode);
+
+    struct termios raw = original_termios;
     raw.c_lflag &= ~(ECHO); // flip bits
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+    // TCSAFLUSH will discards any unread input
 }
 
 /*
