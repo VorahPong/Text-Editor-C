@@ -7,8 +7,17 @@
 #include <unistd.h>
 #include <termios.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
 
 struct termios original_termios;    // stored the original setting of terminal
+
+/*
+    disableRawMode() will return the terminal to it's original state
+*/
+void disableRawMode() {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
+}
 
 /*
     enableRawMode() function will turn off echo in terminal.
@@ -19,16 +28,9 @@ void enableRawMode() {
     atexit(disableRawMode);
 
     struct termios raw = original_termios;
-    raw.c_lflag &= ~(ECHO); // flip bits
+    raw.c_lflag &= ~(ECHO | ICANON); // flip bits
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
     // TCSAFLUSH will discards any unread input
-}
-
-/*
-    disableRawMode() will return the terminal to it's original state
-*/
-void disableRawMode() {
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
 }
 
 /*
@@ -38,6 +40,8 @@ int main() {
     enableRawMode();
 
     char c;
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q');
+    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+        
+    }
     return 0;
 }
