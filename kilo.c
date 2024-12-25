@@ -13,6 +13,10 @@
 #include <ctype.h>
 #include <errno.h>
 
+/*** defines ***/
+
+#define CTRL_KEY(k) ((k) & 0x1f)
+
 /*** data ***/
 
 struct termios original_termios;    // stored the original setting of terminal
@@ -72,7 +76,7 @@ int main() {
         } else {
             printf("%d ('%c')\r\n", c, c); // print the char
         }
-        if (c == 'q') break;
+        if (c == CTRL_KEY('m')) break;
     }
     return 0;
 }
