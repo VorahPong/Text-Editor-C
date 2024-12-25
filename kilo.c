@@ -30,6 +30,7 @@ void enableRawMode() {
     struct termios raw = original_termios;
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN); // flip bits
     raw.c_iflag &= ~(IXON | ICRNL);
+    raw.c_oflag &= ~(OPOST);
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
     // TCSAFLUSH will discards any unread input
 }
@@ -44,9 +45,9 @@ int main() {
 
     while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
         if(iscntrl(c)) { // test if c is a control variable aka the ASCII code from 32-126 otherwise they are printable.
-            printf("%d\n", c); // print numeric value of the char
+            printf("%d\r\n", c); // print numeric value of the char
         } else {
-            printf("%d ('%c')\n", c, c); // print the char
+            printf("%d ('%c')\r\n", c, c); // print the char
         }
     }
     return 0;
