@@ -29,7 +29,7 @@ void enableRawMode() {
 
     struct termios raw = original_termios;
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN); // flip bits
-    raw.c_iflag &= ~(IXON);
+    raw.c_iflag &= ~(IXON | ICRNL);
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
     // TCSAFLUSH will discards any unread input
 }
