@@ -9,14 +9,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
 
 struct termios original_termios;    // stored the original setting of terminal
+
+void die(const char * s) {
+    perror(s);
+    exit(1);
+} 
 
 /*
     disableRawMode() will return the terminal to it's original state
 */
 void disableRawMode() {
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) {
+        die("tcsetattr");
+    }
 }
 
 /*
@@ -24,7 +32,9 @@ void disableRawMode() {
     It also called disableRawMode() when the program exits.
 */
 void enableRawMode() {
-    tcgetattr(STDIN_FILENO, &original_termios);
+    if (tcgetattr(STDIN_FILENO, &original_termios) == -1)
+        die("tcgetattr");
+    
     atexit(disableRawMode);
 
     struct termios raw = original_termios;
@@ -36,7 +46,8 @@ void enableRawMode() {
     raw.c_cc[VMIN] = 0;
     raw.c_cc[VTIME] = 1;
 
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1)
+        die("tcsetattr");
     // TCSAFLUSH will discards any unread input
 }
 
@@ -48,7 +59,9 @@ int main() {
 
     while (1) {
         char c = '\0';
-        read(STDIN_FILENO, &c, 1);
+        if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
+            die("read");
+            
         if(iscntrl(c)) { // test if c is a control variable aka the ASCII code from 32-126 otherwise they are printable.
             printf("%d\r\n", c); // print numeric value of the char
         } else {
