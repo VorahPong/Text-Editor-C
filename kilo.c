@@ -4,6 +4,8 @@
     Description: This is a Text Editor app build from scratch following GitHub Project Based Learning.
 */
 
+/*** includes ***/
+
 #include <unistd.h>
 #include <termios.h>
 #include <stdlib.h>
@@ -11,7 +13,11 @@
 #include <ctype.h>
 #include <errno.h>
 
+/*** data ***/
+
 struct termios original_termios;    // stored the original setting of terminal
+
+/*** terminal ***/
 
 void die(const char * s) {
     perror(s);
@@ -51,9 +57,8 @@ void enableRawMode() {
     // TCSAFLUSH will discards any unread input
 }
 
-/*
-    main() is a starting point
-*/
+/*** init ***/
+
 int main() {
     enableRawMode();
 
@@ -61,7 +66,7 @@ int main() {
         char c = '\0';
         if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
             die("read");
-            
+
         if(iscntrl(c)) { // test if c is a control variable aka the ASCII code from 32-126 otherwise they are printable.
             printf("%d\r\n", c); // print numeric value of the char
         } else {
