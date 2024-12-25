@@ -32,6 +32,10 @@ void enableRawMode() {
     raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
     raw.c_oflag &= ~(OPOST);
     raw.c_cflag |= (CS8);
+
+    raw.c_cc[VMIN] = 0;
+    raw.c_cc[VTIME] = 1;
+
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
     // TCSAFLUSH will discards any unread input
 }
@@ -42,14 +46,15 @@ void enableRawMode() {
 int main() {
     enableRawMode();
 
-    char c;
-
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+    while (1) {
+        char c = '\0';
+        read(STDIN_FILENO, &c, 1);
         if(iscntrl(c)) { // test if c is a control variable aka the ASCII code from 32-126 otherwise they are printable.
             printf("%d\r\n", c); // print numeric value of the char
         } else {
             printf("%d ('%c')\r\n", c, c); // print the char
         }
+        if (c == 'q') break;
     }
     return 0;
 }
