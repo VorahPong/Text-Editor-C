@@ -61,22 +61,34 @@ void enableRawMode() {
     // TCSAFLUSH will discards any unread input
 }
 
+char editorReadKey() {
+    int nread;
+    char c;
+    while ((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+        if(nread == -1 && errno != EAGAIN) die("read");
+    }
+    return c;
+}
+
+/*** input ***/
+
+void editorProcessKeypress() {
+    char c = editorReadKey();
+
+    switch (c) {
+        case CTRL_KEY('m'):
+            exit(0);
+            break;
+    }
+}
+
 /*** init ***/
 
 int main() {
     enableRawMode();
 
     while (1) {
-        char c = '\0';
-        if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN)
-            die("read");
-
-        if(iscntrl(c)) { // test if c is a control variable aka the ASCII code from 32-126 otherwise they are printable.
-            printf("%d\r\n", c); // print numeric value of the char
-        } else {
-            printf("%d ('%c')\r\n", c, c); // print the char
-        }
-        if (c == CTRL_KEY('m')) break;
+        editorProcessKeypress();
     }
     return 0;
 }
