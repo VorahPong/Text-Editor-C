@@ -31,19 +31,12 @@ void die(const char * s) {
     exit(1);
 } 
 
-/*
-    disableRawMode() will return the terminal to it's original state
-*/
 void disableRawMode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) {
         die("tcsetattr");
     }
 }
 
-/*
-    enableRawMode() function will turn off echo in terminal.
-    It also called disableRawMode() when the program exits.
-*/
 void enableRawMode() {
     if (tcgetattr(STDIN_FILENO, &original_termios) == -1)
         die("tcgetattr");
