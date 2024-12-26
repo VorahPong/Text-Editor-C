@@ -18,8 +18,11 @@
 #define CTRL_KEY(k) ((k) & 0x1f)
 
 /*** data ***/
+struct editorConfig {
+    struct termios original_termios;    // stored the original setting of terminal
+};
 
-struct termios original_termios;    // stored the original setting of terminal
+struct editorConfig E;
 
 /*** terminal ***/
 
@@ -32,18 +35,18 @@ void die(const char * s) {
 } 
 
 void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_termios) == -1) {
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.original_termios) == -1) {
         die("tcsetattr");
     }
 }
 
 void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &original_termios) == -1)
+    if (tcgetattr(STDIN_FILENO, &E.original_termios) == -1)
         die("tcgetattr");
     
     atexit(disableRawMode);
 
-    struct termios raw = original_termios;
+    struct termios raw = E.original_termios;
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN); // flip bits
     raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
     raw.c_oflag &= ~(OPOST);
