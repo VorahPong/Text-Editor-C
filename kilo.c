@@ -68,9 +68,21 @@ char editorReadKey() {
 
 /*** output ***/
 
+void editorDrawRows() {
+    int y;
+    int row = 24;
+    for (y = 0; y < row; y++) {
+        write(STDOUT_FILENO, "~\r\n", 3);
+    }
+}
+
 void editorRefreshScreen() {
     write(STDOUT_FILENO, "\x1b[2J", 4); // clear screen
     write(STDOUT_FILENO, "\x1b[H", 3); // position cursor
+
+    editorDrawRows();
+
+    write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
 /*** input ***/
